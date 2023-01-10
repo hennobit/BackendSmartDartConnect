@@ -1,9 +1,14 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import express, {Request, Response} from 'express';
 
-                                                                              
-const httpServer = createServer();
+const app = express()                                        
+const httpServer = createServer(app);
 const io = new Server(httpServer);
+
+app.get('/throw', (req: Request, res: Response) => {
+  res.send("" + Math.floor(Math.random() * 61))
+})
 
 io.on('connection', (socket) => {
   console.log(`${socket.id} connected`);
@@ -13,5 +18,5 @@ io.on('connection', (socket) => {
   })
 });
 
-httpServer.listen(8080)
-console.log("Server läuft auf 8080")
+app.listen(8081)
+console.log("Server läuft auf 8081")
