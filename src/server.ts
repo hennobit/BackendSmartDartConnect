@@ -8,7 +8,7 @@ const io = new Server(httpServer);
 io.on('connection', (socket) => {
   console.log(`${socket.id} connected`);
 
-  io.on('beispiel-event', (zahl: number) => {
+  socket.on('beispiel-event', (zahl: number) => {
     console.log(`So macht man Events. Zahl ${zahl} wurde gesendet`);
   })
 });
