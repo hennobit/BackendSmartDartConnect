@@ -34,6 +34,7 @@ export function startGame(socket: Socket, json: string): void {
 
 export function dartThrown(socket: Socket, json: string): void {
     const dartThrow: DartThrow = JSON.parse(json);
-    console.log(`Player: ${dartThrow.player.name} hat ${dartThrow.points} Punkte geworfen!`)
+    console.log(`Player: ${dartThrow.player.name} hat ${dartThrow.points} Punkte in Raum ${dartThrow.roomId} geworfen!`)
+    console.log(`Jetzt muss er noch ${dartThrow.player.pointsLeft - dartThrow.points} werfen`)
     socket.to(dartThrow.roomId).emit("dart-throw", dartThrow.player, dartThrow.points);
 }

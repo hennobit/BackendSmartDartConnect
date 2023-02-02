@@ -18,11 +18,7 @@ app.get("/throw", (req: Request, res: Response) => {
 
 io.on("connection", (socket: Socket) => {
     console.log(`${socket.id} connected`);
-
-    socket.on("ping", () => {
-        socket.emit("pong", "Das Event wurde getriggert :)3");
-    });
-
+    
     socket.on("join-room", (json: string) => {
         joinRoom(io, json);
     });
