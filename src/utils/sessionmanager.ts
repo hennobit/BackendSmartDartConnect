@@ -1,15 +1,23 @@
+import { Server } from "socket.io";
 import { Player } from "../interfaces/player";
 
 let globalGameMap = new Map();
 
 // ich hab kein bock mehr  das hier zu teesten, mache ich ein anderes mal
-export function handlePlayerCount(room: string, player: Player, io: any): void {
+export function handlePlayerCount(room: string, player: Player, io: Server): void {
     if (room == undefined || player == undefined) {
         return;
     }
     // map von aktuellen sockets in room
-    /*const freshMap = io.sockets.adapter.rooms;
-    const freshRoomContent = Array.from(freshMap.get(room));
+    const freshMap: Map<string, Set<string>> = io.sockets.adapter.rooms;
+    const freshRoom: Set<string> | undefined = freshMap.get(room);
+
+    if (freshRoom == undefined) {
+        console.log("Fehler beim auslesen der Spieler!!!")
+        return;
+    }
+
+    const freshRoomArray: string[] = Array.from(freshRoom);
 
     let actualPlayers = [];
 
@@ -20,7 +28,7 @@ export function handlePlayerCount(room: string, player: Player, io: any): void {
         players.push(player);
         // hier werden die tatsächlichen spieler aus der aktuellen socket mit den spielern aus der gameMap verglichen. wenn die gameMap einen spieler
         // beinhaltet, den der aktuelle socket nicht kennt, wird dieser rausgeschmissen...
-        actualPlayers = players.filter((p: any) => freshRoomContent.includes(p.name));
+        actualPlayers = players.filter((p: any) => freshRoomArray.includes(p.name));
         //  ... und die globalGameMap aktualisiert
         globalGameMap.set(room, actualPlayers);
     } else {
@@ -30,5 +38,6 @@ export function handlePlayerCount(room: string, player: Player, io: any): void {
         actualPlayers = [player];
         globalGameMap.set(room, actualPlayers);
     }
-    io.to(room).emit("playercount-change", actualPlayers);*/
+    console.log(actualPlayers)
+    io.to(room).emit("playercount-change", actualPlayers);
 }

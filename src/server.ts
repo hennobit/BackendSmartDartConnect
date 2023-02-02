@@ -18,9 +18,9 @@ app.get("/throw", (req: Request, res: Response) => {
 
 io.on("connection", (socket: Socket) => {
     console.log(`${socket.id} connected`);
-    
+
     socket.on("join-room", (json: string) => {
-        joinRoom(io, json);
+        joinRoom(io, socket, json);
     });
 
     socket.on("dart-throw", (json: string) => {
