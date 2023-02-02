@@ -7,9 +7,8 @@ export function handlePlayerCount(room: string, player: Player, io: any): void {
     if (room == undefined || player == undefined) {
         return;
     }
-    console.log("geile sache man kommt wenigstens rein")
     // map von aktuellen sockets in room
-    const freshMap = io.sockets.adapter.rooms;
+    /*const freshMap = io.sockets.adapter.rooms;
     const freshRoomContent = Array.from(freshMap.get(room));
 
     let actualPlayers = [];
@@ -31,5 +30,5 @@ export function handlePlayerCount(room: string, player: Player, io: any): void {
         actualPlayers = [player];
         globalGameMap.set(room, actualPlayers);
     }
-    io.to(room).emit("playercount-change", actualPlayers);
+    io.to(room).emit("playercount-change", actualPlayers);*/
 }
