@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import { Player } from "./player";
+import { globalGameMap } from "../utils/sessionmanager";
 
 interface GameStart {
     roomId: string;
@@ -28,6 +29,7 @@ export function startGame(socket: Socket, json: string): void {
         currentPlayer: players[0],
         dartsLeft: 3,
     };
+    console.log(globalGameMap.get(game.roomId), "das bekomme ich aus der game map")
     console.log(`In Raum ${game.roomId} wurde ein Spiel gestartet!`)
     socket.to(game.roomId).emit('start-game');
 }
