@@ -50,5 +50,10 @@ export function handleGameRooms(socket: Socket, game: Game): void {
         return;
     }
     globalGameMap.set(game.roomId, game);
+    console.log(
+        `Es wurde ein Game in Raum ${game.roomId} gestartet mit den Spielern: ${game.players.map(
+            (p: Player) => p.name
+        )}. ${game.currentPlayer.name} fängt an.`
+    );
     socket.to(game.roomId).emit("start-game", JSON.stringify(game))
 }
