@@ -25,8 +25,11 @@ app.get("/log", (req: Request, res: Response) => {
 io.on('connection', (socket: Socket) => {
     console.log(`${socket.id} connected`);
 
+    socket.on('disconnecting', () => {
+        leaveRoom(socket)
+    })
+
     socket.on('disconnect', () => {
-        leaveRoom(socket);
     });
 
     socket.on('join-room', (json: string) => {

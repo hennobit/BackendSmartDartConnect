@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { handlePlayerCount } from '../utils/sessionmanager';
+import { globalPlayerMap, handlePlayerCount } from '../utils/sessionmanager';
 
 export interface Player {
     name: string,
@@ -9,21 +9,26 @@ export interface Player {
 }
 
 interface JoinRoom {
-    roomId: string;
-    oldRoom: string;
-    player: Player;
+    roomId: string,
+    player: Player
 }
 
 export function joinRoom(io: Server, socket: Socket, json: string): void {
     const joinRoomObject: JoinRoom = JSON.parse(json);
+    socket.leave([...socket.rooms][0])
     socket.join(joinRoomObject.roomId);
-    socket.leave(joinRoomObject.oldRoom);
+    //socket.leave;
     console.log(
         `Spieler ${joinRoomObject.player.name} ist dem Raum ${joinRoomObject.roomId} beigetreten`
     );
+    console.log(socket.rooms)
     handlePlayerCount(joinRoomObject.roomId, joinRoomObject.player, io);
 }
 
 export function leaveRoom(socket: Socket): void {
-    console.log(`${socket.id} disconnected`);
+    const room: string = [...socket.rooms][0];
+    let playerArrayInRoom: Player[] = globalPlayerMap.get(room)
+    const actualPlayersInRoom = playerArrayInRoom.filter(p => p.socket !== socket.id)
+    console.log(`${socket.id} disconnecting...`);
+    socket.to(room).emit('playercount-change', actualPlayersInRoom)
 }
