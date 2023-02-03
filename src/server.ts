@@ -18,6 +18,10 @@ app.get('/throw', (req: Request, res: Response) => {
     res.send('' + Math.floor(Math.random() * 61));
 });
 
+app.get("/log", (req: Request, res: Response) => {
+    res.sendFile("/server_log.txt")
+})
+
 io.on('connection', (socket: Socket) => {
     console.log(`${socket.id} connected`);
 
