@@ -10,6 +10,7 @@ const io = new Server(httpServer, {
     cors: {
         origin: '*'
     },
+    allowEIO3: true,
     pingTimeout: 2000,
     pingInterval: 1000
 });
