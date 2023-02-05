@@ -29,9 +29,6 @@ io.on('connection', (socket: Socket) => {
         leaveRoom(socket)
     })
 
-    socket.on('disconnect', () => {
-    });
-
     socket.on('join-room', (json: string) => {
         joinRoom(io, socket, json);
     });
