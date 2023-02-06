@@ -14,7 +14,16 @@ interface JoinRoom {
 }
 
 export function joinRoom(io: Server, socket: Socket, json: string): void {
-    const joinRoomObject: JoinRoom = JSON.parse(json);
+    let joinRoomObject: JoinRoom | undefined = undefined; 
+    try {
+        joinRoomObject = JSON.parse(json);
+    } catch (err) {
+        console.log(err)
+    }
+    if (!joinRoomObject) {
+        console.log("Join-Room JSON kaputt")
+        return;
+    }
     socket.leave([...socket.rooms][0]);
     socket.join(joinRoomObject.roomId);
     //socket.leave;

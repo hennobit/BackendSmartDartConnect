@@ -20,9 +20,17 @@ interface DartThrow {
 }
 
 export function startGame(socket: Socket, json: string): void {
-    const gameStart: GameStart = JSON.parse(json);
+    let gameStart: GameStart | undefined = undefined;
+    try {
+        gameStart = JSON.parse(json);
+    } catch (err) {
+        console.log(err);
+    }
+    if (!gameStart) {
+        console.log('Start-Game JSON kaputt');
+        return;
+    }
     let players: Player[] = globalPlayerMap.get(gameStart.roomId);
-
     const game: Game = {
         roomId: gameStart.roomId,
         players: players,
@@ -33,10 +41,19 @@ export function startGame(socket: Socket, json: string): void {
 }
 
 export function dartThrown(socket: Socket, json: string): void {
-    const dartThrow: DartThrow = JSON.parse(json);
+    let dartThrow: DartThrow | undefined = undefined;
+    try {
+        dartThrow = JSON.parse(json);
+    } catch (err) {
+        console.log(err);
+    }
+    if (!dartThrow) {
+        console.log('Dart-Throw JSON kaputt');
+        return;
+    }
     let game: Game = globalGameMap.get(dartThrow.roomId);
     let playerInRoomArray: Player[] = game.players;
-    let player: Player | undefined = playerInRoomArray.find((p: Player) => p.socket === dartThrow.playerId);
+    let player: Player | undefined = playerInRoomArray.find((p: Player) => p.socket === dartThrow?.playerId);
 
     if (player === undefined) {
         console.log(
@@ -52,7 +69,7 @@ export function dartThrown(socket: Socket, json: string): void {
 
     player.pointsLeft -= dartThrow.points;
     game.dartsLeft -= 1;
-    
+
     if (isGameOver(socket, player, game)) {
         return;
     }
@@ -93,8 +110,8 @@ function nextTurn(game: Game): Game {
 
 function isGameOver(socket: Socket, player: Player, game: Game): boolean {
     if (player.pointsLeft === 0) {
-        socket.to(game.roomId).emit("game-over", game)
-        console.log(`${player.name} hat in Raum ${game.roomId} gewonnen! GG`)
+        socket.to(game.roomId).emit('game-over', game);
+        console.log(`${player.name} hat in Raum ${game.roomId} gewonnen! GG`);
         return true;
     }
     return false;
