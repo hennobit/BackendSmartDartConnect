@@ -16,21 +16,20 @@ export interface Game {
 interface DartThrow {
     roomId: string;
     playerId: string;
-    points: 0;
+    points: number;
+    multiplikator: number;
 }
 
 export function startGame(socket: Socket, json: string): void {
     let gameStart: GameStart | undefined = undefined;
-    try {
-        gameStart = JSON.parse(json);
-    } catch (err) {
-        console.log(err);
-    }
+    gameStart = JSON.parse(json);
     if (!gameStart) {
         console.log('Start-Game JSON kaputt');
         return;
     }
+    console.log(gameStart);
     let players: Player[] = globalPlayerMap.get(gameStart.roomId);
+    console.log();
     const game: Game = {
         roomId: gameStart.roomId,
         players: players,
@@ -67,7 +66,7 @@ export function dartThrown(socket: Socket, json: string): void {
         return;
     }
 
-    player.pointsLeft -= dartThrow.points;
+    player.pointsLeft -= dartThrow.points * dartThrow.multiplikator;
     game.dartsLeft -= 1;
 
     if (isGameOver(socket, player, game)) {
@@ -78,7 +77,7 @@ export function dartThrown(socket: Socket, json: string): void {
         game = nextTurn(game);
     }
     console.log(
-        `${dartThrow.points} geworfen von ${player.name} in Raum ${game.roomId}. ${player.pointsLeft} Punkte verbleiben...`
+        `${dartThrow.points * dartThrow.multiplikator} geworfen von ${player.name} in Raum ${game.roomId}. ${player.pointsLeft} Punkte verbleiben...`
     );
     socket.to(game.roomId).emit('dart-throw', JSON.stringify(game));
 }
