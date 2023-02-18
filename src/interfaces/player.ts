@@ -24,12 +24,13 @@ export function joinRoom(io: Server, socket: Socket, json: string): void {
         console.log("Join-Room JSON kaputt")
         return;
     }
-    socket.leave([...socket.rooms][0]);
+    const oldRoom = [...socket.rooms][0];
+    socket.leave(oldRoom);
     socket.join(joinRoomObject.roomId);
     //socket.leave;
     console.log(`Spieler ${joinRoomObject.player.name} ist dem Raum ${joinRoomObject.roomId} beigetreten`);
     console.log(socket.rooms);
-    handlePlayerCount(joinRoomObject.roomId, joinRoomObject.player, io);
+    handlePlayerCount(joinRoomObject.roomId, joinRoomObject.player, io, oldRoom);
 }
 
 export function leaveRoom(socket: Socket): void {

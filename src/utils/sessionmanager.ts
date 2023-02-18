@@ -5,7 +5,7 @@ import { Player } from '../interfaces/player';
 export let globalPlayerMap = new Map();
 export let globalGameMap = new Map();
 
-export function handlePlayerCount(room: string, player: Player, io: Server): void {
+export function handlePlayerCount(room: string, player: Player, io: Server, oldRoom?: string): void {
     if (room == undefined || player == undefined) {
         return;
     }
@@ -22,7 +22,7 @@ export function handlePlayerCount(room: string, player: Player, io: Server): voi
 
     let actualPlayers: Player[] = [];
 
-    // wenn die globalGameMap schon den "room" kennt, dann einfach nur die spieleranzahl aktualisieren
+    // wenn die globalPlayerMap schon den "room" kennt, dann einfach nur die spieleranzahl aktualisieren
     if (globalPlayerMap.has(room)) {
         // aktuelle players die die globalGameMap kennt
         let players: Player[] = globalPlayerMap.get(room);
@@ -40,6 +40,15 @@ export function handlePlayerCount(room: string, player: Player, io: Server): voi
         actualPlayers = [player];
         globalPlayerMap.set(room, actualPlayers);
     }
+
+    if (oldRoom && oldRoom !== room && globalPlayerMap.has(oldRoom)) {
+        const oldRoomPlayers: Player[] = globalPlayerMap.get(oldRoom);
+        globalPlayerMap.delete(oldRoom);
+
+        // emit event to old room that the player left
+        io.to(oldRoom).emit('playercount-change', oldRoomPlayers.filter(p => p.socket !== player.socket));
+    }
+
     io.to(room).emit('playercount-change', actualPlayers);
 }
 

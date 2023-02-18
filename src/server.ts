@@ -3,6 +3,7 @@ import { Server, Socket } from 'socket.io';
 import express, { Request, Response } from 'express';
 import { startGame, dartThrown } from './interfaces/game';
 import { joinRoom, leaveRoom } from './interfaces/player';
+import { json } from 'stream/consumers';
 
 const app = express();
 const httpServer = createServer(app);
@@ -27,6 +28,10 @@ io.on('connection', (socket: Socket) => {
     console.log(`${socket.id} connected`);
 
     socket.on('disconnecting', () => {
+        leaveRoom(socket)
+    })
+
+    socket.on('leave-room', (json: string) => {
         leaveRoom(socket)
     })
 
