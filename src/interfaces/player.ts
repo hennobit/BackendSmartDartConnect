@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { globalPlayerMap, handlePlayerCount } from '../utils/sessionmanager';
+import { deleteRoomIfEmpty, globalPlayerMap, handlePlayerCount } from '../utils/sessionmanager';
 
 export interface Player {
     name: string;
@@ -27,20 +27,23 @@ export function joinRoom(io: Server, socket: Socket, json: string): void {
     const oldRoom = [...socket.rooms][0];
     socket.leave(oldRoom);
     socket.join(joinRoomObject.roomId);
-    //socket.leave;
+
     console.log(`Spieler ${joinRoomObject.player.name} ist dem Raum ${joinRoomObject.roomId} beigetreten`);
-    console.log(socket.rooms);
+
     handlePlayerCount(joinRoomObject.roomId, joinRoomObject.player, io, oldRoom);
 }
 
 export function leaveRoom(socket: Socket): void {
     const room: string = [...socket.rooms][0];
     let playerArrayInRoom: Player[] | undefined = globalPlayerMap.get(room);
+    console.log(`${socket.id} is disconnecting`, `${playerArrayInRoom ? "and leaves Room: " + room : "..."}`);
     if (playerArrayInRoom === undefined) {
-        console.log(`Fehler in Raum ${room}. Es konnten keine Spieler gefunden werden`);
+        // wenn wir hier drinne landen, ist die socket in keinem raum drinne und wir können returnen
         return;
     }
     const actualPlayersInRoom = playerArrayInRoom.filter((p) => p.socket !== socket.id);
-    console.log(`${socket.id} disconnecting...`);
     socket.to(room).emit('playercount-change', actualPlayersInRoom);
+
+    globalPlayerMap.set(room, actualPlayersInRoom)
+    deleteRoomIfEmpty(room);
 }

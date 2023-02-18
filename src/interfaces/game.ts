@@ -10,6 +10,7 @@ export interface Game {
     roomId: string;
     players: Player[];
     currentPlayer: Player;
+    nextPlayer: Player;
     dartsLeft: number;
 }
 
@@ -34,6 +35,7 @@ export function startGame(socket: Socket, json: string): void {
         roomId: gameStart.roomId,
         players: players,
         currentPlayer: players[0],
+        nextPlayer: players[1] ? players[1] : players[0],
         dartsLeft: 3
     };
     handleGameRooms(socket, game);
@@ -98,11 +100,9 @@ function handleIllegalThrow(socket: Socket, player: Player, game: Game): void {
 
 function nextTurn(game: Game): Game {
     let currentPlayerIndex = game.players.indexOf(game.currentPlayer);
-    currentPlayerIndex++;
-    if (currentPlayerIndex >= game.players.length) {
-        currentPlayerIndex = 0;
-    }
+    currentPlayerIndex = (currentPlayerIndex + 1) % game.players.length;
     game.currentPlayer = game.players[currentPlayerIndex];
+    game.nextPlayer = game.players[(currentPlayerIndex + 1) % game.players.length];
     game.dartsLeft = 3;
     return game;
 }

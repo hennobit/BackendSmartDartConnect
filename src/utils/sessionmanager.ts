@@ -26,6 +26,20 @@ export function handlePlayerCount(room: string, player: Player, io: Server, oldR
     if (globalPlayerMap.has(room)) {
         // aktuelle players die die globalGameMap kennt
         let players: Player[] = globalPlayerMap.get(room);
+
+        if (players.length >= 16) {
+            console.log(`Maximale Anzahl der Spieler in Raum ${room} erreicht!`)
+            return;
+        }
+
+        players.forEach(p => {
+            if (p.socket === player.socket) {
+                console.log(`${player.name} existiert bereits mit der SocketID ${player.socket} in Raum ${room}`)
+                return;
+            }
+        })
+
+        
         players.push(player);
         // hier werden die tatsächlichen spieler aus der aktuellen socket mit den spielern aus der gameMap verglichen. wenn die gameMap einen spieler
         // beinhaltet, den der aktuelle socket nicht kennt, wird dieser rausgeschmissen...
@@ -65,4 +79,11 @@ export function handleGameRooms(socket: Socket, game: Game): void {
         )}. ${game.currentPlayer.name} fängt an.`
     );
     socket.to(game.roomId).emit("start-game", JSON.stringify(game))
+}
+
+export function deleteRoomIfEmpty(room: string) {
+    if (globalPlayerMap.get(room).length <= 0) {
+        console.log(`Raum ${room} ist leer und wird gelöscht!`)
+        globalGameMap.delete(room);
+    }
 }
