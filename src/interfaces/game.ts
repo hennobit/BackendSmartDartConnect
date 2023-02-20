@@ -16,7 +16,7 @@ export interface Game {
 
 interface DartThrow {
     roomId: string;
-    playerId: string;
+    player: Player;
     points: number;
     multiplikator: number;
 }
@@ -52,13 +52,14 @@ export function dartThrown(socket: Socket, json: string): void {
         console.log('Dart-Throw JSON kaputt');
         return;
     }
+    console.log(dartThrow.roomId)
     let game: Game = globalGameMap.get(dartThrow.roomId);
     let playerInRoomArray: Player[] = game.players;
-    let player: Player | undefined = playerInRoomArray.find((p: Player) => p.socket === dartThrow?.playerId);
+    let player: Player | undefined = playerInRoomArray.find((p: Player) => p.socket === dartThrow?.player.socket);
 
     if (player === undefined) {
         console.log(
-            `Error in Raum ${dartThrow.roomId}! Spieler mit der SocketID ${dartThrow.playerId} nicht gefunden.`
+            `Error in Raum ${dartThrow.roomId}! Spieler mit der SocketID ${dartThrow.player.socket} nicht gefunden.`
         );
         return;
     }

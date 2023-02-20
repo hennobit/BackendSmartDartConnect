@@ -28,7 +28,7 @@ export function joinRoom(io: Server, socket: Socket, json: string): void {
     socket.leave(oldRoom);
     socket.join(joinRoomObject.roomId);
 
-    console.log(`Spieler ${joinRoomObject.player.name} ist dem Raum ${joinRoomObject.roomId} beigetreten`);
+    console.log(`Spieler ${joinRoomObject.player.name} tritt dem Raum ${joinRoomObject.roomId} bei...`);
 
     handlePlayerCount(joinRoomObject.roomId, joinRoomObject.player, io, oldRoom);
 }
