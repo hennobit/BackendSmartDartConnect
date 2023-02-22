@@ -91,7 +91,7 @@ export function handleGameRooms(socket: Socket, game: Game): void {
             game.roomId
         } gestartet mit den Spielern: ${game.players.map(
             (p: Player) => p.name
-        )}. ${game.currentPlayer.name} fängt an.`
+        )}. ${game.currentPlayer.name} fängt an. Es gilt ${game.currentPlayer.pointsLeft} Punkte zu werfen!`
     );
     socket.to(game.roomId).emit("start-game", JSON.stringify(game));
 }

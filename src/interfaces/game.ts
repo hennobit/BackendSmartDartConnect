@@ -8,6 +8,7 @@ import {
 
 interface GameStart {
     roomId: string;
+    points: number;
 }
 
 export interface Game {
@@ -32,10 +33,17 @@ export function startGame(socket: Socket, json: string): void {
         console.log("Start-Game JSON kaputt");
         return;
     }
-    console.log(gameStart);
+
     let players: Player[] = globalPlayerMap.get(gameStart.roomId);
-    console.log();
-    const game: Game = {
+    if (!players) {
+        console.log(`Es existiert kein aktives Spiel mit Spielern in Raum ${gameStart.roomId}! Wurde das Spiel gestartet?`)
+        return;
+    }
+
+    for (let i = 0; i < players.length; i++) {
+        players[i].pointsLeft = gameStart.points;
+    }
+    const game: Game = { 
         roomId: gameStart.roomId,
         players: players,
         currentPlayer: players[0],
@@ -63,6 +71,8 @@ export function dartThrown(socket: Socket, json: string): void {
         );
         return;
     }
+    console.log(game)
+    console.log(dartThrow)
     let playerInRoomArray: Player[] = game.players;
     let player: Player | undefined = playerInRoomArray.find(
         (p: Player) => p.socket === dartThrow?.player.socket
