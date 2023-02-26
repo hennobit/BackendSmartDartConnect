@@ -80,11 +80,6 @@ export function handlePlayerCount(
 }
 
 export function handleGameRooms(socket: Socket, game: Game): void {
-    if (globalGameMap.has(game.roomId)) {
-        // also erstmal kann der server den raum ja gar nicht haben deswegen hier einfach nur nen fehler schmeißen
-        console.log("Fehler beim starten des Spiels. Spiel läuft bereits!");
-        return;
-    }
     globalGameMap.set(game.roomId, game);
     console.log(
         `Es wurde ein Game in Raum ${
