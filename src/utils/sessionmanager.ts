@@ -39,6 +39,12 @@ export function handlePlayerCount(
             return;
         }
 
+        const game: Game = globalGameMap.get(room);
+        if (game && game.running) {
+            console.log(`${player.name} versuchte einem laufendem Spiel (${room}) beizutreten!`)
+            return;
+        }
+
         for (let i = 0; i < players.length; i++) {
             if (players[i].socket === player.socket) {
                 console.log(
