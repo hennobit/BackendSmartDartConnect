@@ -162,7 +162,7 @@ function isGameOver(socket: Socket, player: Player, game: Game): boolean {
     if (playersWithPointsLeft <= 1) {
         game.running = false;
         socket.to(game.roomId).emit('game-over', game);
-        console.log(`${player.name} hat in Raum ${game.roomId} gewonnen! GG`);
+        console.log(`${game.finishOrder[0].name} hat in Raum ${game.roomId} gewonnen! GG`);
         return true;
     }
     return false;
