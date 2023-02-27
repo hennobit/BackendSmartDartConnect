@@ -1,10 +1,12 @@
 import { Socket } from 'socket.io';
 import { Player } from './player';
 import { globalGameMap, globalPlayerMap, handleGameRooms } from '../utils/sessionmanager';
+import { Gamemode, gamemodeNames } from '../gamemodes/gamemodes';
 
 interface GameStart {
     roomId: string;
     points: number;
+    gamemode: number;
 }
 
 export interface Game {
@@ -15,9 +17,10 @@ export interface Game {
     dartsLeft: number;
     running: boolean;
     finishOrder: Player[];
+    gamemode: number
 }
 
-interface DartThrow {
+export interface DartThrow {
     roomId: string;
     player: Player;
     points: number;
@@ -56,7 +59,8 @@ export function startGame(socket: Socket, json: string): void {
         nextPlayer: players[1] ? players[1] : players[0],
         dartsLeft: 3,
         running: true,
-        finishOrder: []
+        finishOrder: [],
+        gamemode: gameStart.gamemode
     };
     handleGameRooms(socket, game);
 }
@@ -89,7 +93,7 @@ export function dartThrown(socket: Socket, json: string): void {
         return;
     }
 
-    if (!isLegalThrow(player, dartThrow)) {
+    if (!isLegalThrow(dartThrow, player, game)) {
         handleIllegalThrow(socket, player, game);
         return;
     }
@@ -99,7 +103,7 @@ export function dartThrown(socket: Socket, json: string): void {
 
     if (player.pointsLeft === 0) {
         game = updateFinishOrder(player, game);
-        if (isGameOver(socket, player, game)) {
+        if (isGameOver(socket, game)) {
             return;
         } else {
             game = rotatePlayers(game)
@@ -116,11 +120,6 @@ export function dartThrown(socket: Socket, json: string): void {
         } Punkte verbleiben...`
     );
     socket.to(game.roomId).emit('dart-throw', JSON.stringify(game));
-}
-
-function isLegalThrow(player: Player, dartThrow: DartThrow): boolean {
-    // wenn players points unter 0 gehen dann illegaler throw
-    return !(player.pointsLeft - dartThrow.points * dartThrow.multiplikator < 0)
 }
 
 function rotatePlayers(game: Game): Game {
@@ -151,12 +150,31 @@ function rotatePlayers(game: Game): Game {
 
 function handleIllegalThrow(socket: Socket, player: Player, game: Game): void {
     game = rotatePlayers(game);
-    console.log(`${game.currentPlayer.name} hat in ${game.roomId} über 0 geworfen.`);
+    console.log(`${game.currentPlayer.name} hat in ${game.roomId} keinen gültigen Endwurf geworfen. Spielmodus ${gamemodeNames[game.gamemode]}`);
     console.log(`Er bleibt bei ${player.pointsLeft} Punkten. Nächster`);
     socket.to(game.roomId).emit('dart-throw', JSON.stringify(game));
 }
 
-function isGameOver(socket: Socket, player: Player, game: Game): boolean {
+function isLegalThrow(dartThrow: DartThrow, player: Player, game: Game): boolean {
+    const pointsLeft: number = player.pointsLeft - dartThrow.points * dartThrow.multiplikator;
+    console.log(pointsLeft)
+
+    if (game.gamemode == Gamemode.STRAIGHT_OUT) {
+        return pointsLeft >= 0;
+    }
+    if (game.gamemode == Gamemode.DOUBLE_OUT) {
+        // beim double out darf man nicht auf 1 stehen bleiben
+        if (pointsLeft >= 2) {
+            return true;
+        }
+        return pointsLeft == 0 && dartThrow.multiplikator == 2;
+    }
+
+    console.log("Warum sind wir hier gelandet? Error in isLegalThrow()")
+    return false;
+}
+
+function isGameOver(socket: Socket, game: Game): boolean {
     // Game Over soll jetzt nur noch getriggert werden, wenn nur noch EIN Spieler in einem Raum seine Punkte noch nicht runtergeworfen hat
     const playersWithPointsLeft: number = game.players.filter((p) => p.pointsLeft > 0).length;
     if (playersWithPointsLeft <= 1) {
