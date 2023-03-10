@@ -6,6 +6,7 @@ export interface Player {
     pointsLeft: number;
     host: boolean;
     socket: string;
+    lastThrows: number[];
 }
 
 interface JoinRoom {
@@ -28,6 +29,7 @@ export function joinRoom(io: Server, socket: Socket, json: string): void {
     socket.leave(oldRoom);
     socket.join(joinRoomObject.roomId);
 
+    console.log(socket.rooms)
     console.log(`Spieler ${joinRoomObject.player.name} tritt dem Raum ${joinRoomObject.roomId} bei...`);
 
     handlePlayerCount(joinRoomObject.roomId, joinRoomObject.player, io, oldRoom);
@@ -42,7 +44,7 @@ export function leaveRoom(socket: Socket): void {
         return;
     }
     const actualPlayersInRoom = playerArrayInRoom.filter((p) => p.socket !== socket.id);
-    socket.to(room).emit('playercount-change', actualPlayersInRoom);
+    socket.to(room).emit('playercount-change', JSON.stringify(actualPlayersInRoom));
 
     globalPlayerMap.set(room, actualPlayersInRoom)
     deleteRoomIfEmpty(room);

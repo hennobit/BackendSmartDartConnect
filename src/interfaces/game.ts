@@ -98,6 +98,8 @@ export function dartThrown(socket: Socket, json: string): void {
         return;
     }
 
+    player.lastThrows.push(dartThrow.points * dartThrow.multiplikator)
+
     player.pointsLeft -= dartThrow.points * dartThrow.multiplikator;
     game.dartsLeft -= 1;
 
@@ -120,6 +122,15 @@ export function dartThrown(socket: Socket, json: string): void {
         } Punkte verbleiben...`
     );
     socket.to(game.roomId).emit('dart-throw', JSON.stringify(game));
+}
+
+export function nextPlayerEvent(socket: Socket, roomId: string) {
+    const game: Game = globalGameMap.get(roomId);
+    console.log(`Es wurde der nächste Player geforced! ${game.currentPlayer.name} zu ${game.nextPlayer.name}`)
+    for (let i = 0; i < game.dartsLeft; i++) {
+        game.currentPlayer.lastThrows.push(0)
+    }
+    socket.to(roomId).emit('next-player', JSON.stringify(rotatePlayers(game)))
 }
 
 function rotatePlayers(game: Game): Game {
@@ -149,6 +160,9 @@ function rotatePlayers(game: Game): Game {
 }
 
 function handleIllegalThrow(socket: Socket, player: Player, game: Game): void {
+    const lastNumbers: number[] = player.lastThrows.slice(Math.max(player.lastThrows.length - (3 - game.dartsLeft), 0));
+    const pointsToAdd: number = lastNumbers.reduce((a, b) => a + b, 0);
+    player.pointsLeft += pointsToAdd;
     game = rotatePlayers(game);
     console.log(`${game.currentPlayer.name} hat in ${game.roomId} keinen gültigen Endwurf geworfen. Spielmodus ${gamemodeNames[game.gamemode]}`);
     console.log(`Er bleibt bei ${player.pointsLeft} Punkten. Nächster`);
