@@ -1,13 +1,17 @@
-import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import express, { Request, Response } from 'express';
 import { startGame, dartThrown, nextPlayerEvent } from './interfaces/game';
 import { joinRoom, leaveRoom } from './interfaces/player';
-import { json } from 'stream/consumers';
+
+import { createServer } from 'https';
+import * as fs from 'fs';
+const privateKey = fs.readFileSync("/etc/ssl/private/dasistdart_private.key", "utf-8")
+const certificate = fs.readFileSync("/etc/ssl/certs/dasistdart_certificate.crt" , "utf-8")
+const credentials = {key: privateKey, cert: certificate}
 
 const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const server = createServer(credentials, app);
+const io = new Server(server, {
     cors: {
         origin: '*'
     },
@@ -52,6 +56,6 @@ io.on('connection', (socket: Socket) => {
     });
 });
 
-httpServer.listen(8081, () => {
+server.listen(8081, () => {
     console.log('Server läuft auf 8081');
 });
