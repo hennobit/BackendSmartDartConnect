@@ -9,6 +9,7 @@ const privateKey = fs.readFileSync("/etc/ssl/private/dasistdart_private.key", "u
 const certificate = fs.readFileSync("/etc/ssl/certs/dasistdart_certificate.crt" , "utf-8")
 const credentials = {key: privateKey, cert: certificate}
 
+const PORT: number = 8081;
 const app = express();
 const server = createServer(credentials, app);
 const io = new Server(server, {
@@ -56,6 +57,6 @@ io.on('connection', (socket: Socket) => {
     });
 });
 
-server.listen(8081, () => {
-    console.log('Server läuft auf 8081');
+server.listen(PORT, () => {
+    console.log('Server läuft auf ' + PORT);
 });
