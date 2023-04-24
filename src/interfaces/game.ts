@@ -76,6 +76,21 @@ export function dartThrown(socket: Socket, json: string): void {
         console.log('Dart-Throw JSON kaputt');
         return;
     }
+    const points = dartThrow.points * dartThrow.multiplikator;
+
+    socket.to(dartThrow.roomId).emit('dart-throw', points)
+    return;
+}
+    /*let dartThrow: DartThrow | undefined = undefined;
+    try {
+        dartThrow = JSON.parse(json);
+    } catch (err) {
+        console.log(err);
+    }
+    if (!dartThrow) {
+        console.log('Dart-Throw JSON kaputt');
+        return;
+    }
     let game: Game = globalGameMap.get(dartThrow.roomId);
     if (!game) {
         console.log(
@@ -122,7 +137,7 @@ export function dartThrown(socket: Socket, json: string): void {
         } Punkte verbleiben...`
     );
     socket.to(game.roomId).emit('dart-throw', JSON.stringify(game));
-}
+}*/
 
 export function nextPlayerEvent(socket: Socket, roomId: string) {
     const game: Game = globalGameMap.get(roomId);
