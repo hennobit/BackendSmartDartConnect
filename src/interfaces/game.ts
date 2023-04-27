@@ -76,68 +76,11 @@ export function dartThrown(socket: Socket, json: string): void {
         console.log('Dart-Throw JSON kaputt');
         return;
     }
-    const points = dartThrow.points * dartThrow.multiplikator;
+    console.log("Dart has been thrown");
 
-    socket.to(dartThrow.roomId).emit('dart-throw', points)
+    socket.to(dartThrow.roomId).emit('dart-throw', json)
     return;
 }
-    /*let dartThrow: DartThrow | undefined = undefined;
-    try {
-        dartThrow = JSON.parse(json);
-    } catch (err) {
-        console.log(err);
-    }
-    if (!dartThrow) {
-        console.log('Dart-Throw JSON kaputt');
-        return;
-    }
-    let game: Game = globalGameMap.get(dartThrow.roomId);
-    if (!game) {
-        console.log(
-            `Error Game.ts => dartThrown(). Es wurde kein aktives Spiel mit der ID ${dartThrow.roomId} gefunden!`
-        );
-        return;
-    }
-    let playerInRoomArray: Player[] = game.players;
-    let player: Player | undefined = playerInRoomArray.find((p: Player) => p.socket === dartThrow?.player.socket);
-
-    if (!player) {
-        console.log(
-            `Error Game.ts => dartThrown(). Spieler mit der SocketID ${dartThrow.player.socket} in Raum ${dartThrow.roomId} nicht gefunden!`
-        );
-        return;
-    }
-
-    if (!isLegalThrow(dartThrow, player, game)) {
-        handleIllegalThrow(socket, player, game);
-        return;
-    }
-
-    player.lastThrows.push(dartThrow.points * dartThrow.multiplikator)
-
-    player.pointsLeft -= dartThrow.points * dartThrow.multiplikator;
-    game.dartsLeft -= 1;
-
-    if (player.pointsLeft === 0) {
-        game = updateFinishOrder(player, game);
-        if (isGameOver(socket, game)) {
-            return;
-        } else {
-            game = rotatePlayers(game)
-        }
-    }
-
-    if (game.dartsLeft === 0) {
-        game = rotatePlayers(game);
-    }
-
-    console.log(
-        `${dartThrow.points * dartThrow.multiplikator} geworfen von ${player.name} in Raum ${game.roomId}. ${
-            player.pointsLeft
-        } Punkte verbleiben...`
-    );
-    socket.to(game.roomId).emit('dart-throw', JSON.stringify(game));
-}*/
 
 export function nextPlayerEvent(socket: Socket, roomId: string) {
     const game: Game = globalGameMap.get(roomId);
