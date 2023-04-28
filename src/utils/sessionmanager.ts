@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
-import { gamemodeNames } from "../gamemodes/gamemodes";
 import { Game } from "../interfaces/game";
 import { Player } from "../interfaces/player";
+import { Endingmode } from "../gamemodes/endingmodes";
 
 export let globalPlayerMap = new Map();
 export let globalGameMap = new Map();
@@ -93,9 +93,9 @@ export function handleGameRooms(socket: Socket, game: Game): void {
             game.roomId
         } gestartet mit den Spielern: ${game.players.map(
             (p: Player) => p.name
-        )}. ${game.currentPlayer.name} fängt an. Es gilt ${game.currentPlayer.pointsLeft} Punkte zu werfen im ${gamemodeNames[game.gamemode]} Modus!`
+        )}. ${game.currentPlayer.name} fängt an. Es gilt ${game.currentPlayer.pointsLeft} Punkte zu werfen im ${Endingmode[game.endingmode]} Modus!`
     );
-    socket.to(game.roomId).emit("start-game", JSON.stringify(game));
+    socket.to(game.roomId).emit("start-game", game);
 }
 
 export function deleteRoomIfEmpty(room: string) {
