@@ -78,7 +78,7 @@ export function dartThrown(socket: Socket, json: string): void {
     }
     console.log("Dart has been thrown");
 
-    socket.to(dartThrow.roomId).emit('dart-throw', json)
+    socket.to(dartThrow.roomId).emit('dart-throw', dartThrow)
     return;
 }
 
