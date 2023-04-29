@@ -3,3 +3,8 @@ export enum Gamemode {
     QuickGame,
     Training
 }
+
+export enum Endingmode {
+    StraightOut,
+    DoubleOut
+}

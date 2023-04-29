@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { Game } from "../interfaces/game";
 import { Player } from "../interfaces/player";
-import { Endingmode } from "../gamemodes/endingmodes";
+import { Endingmode } from "../enums/enums";
 
 export let globalPlayerMap = new Map();
 export let globalGameMap = new Map();

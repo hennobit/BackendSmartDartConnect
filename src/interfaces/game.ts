@@ -1,8 +1,7 @@
 import { Socket } from 'socket.io';
 import { Player } from './player';
 import { globalGameMap, globalPlayerMap, handleGameRooms } from '../utils/sessionmanager';
-import { Endingmode } from '../gamemodes/endingmodes';
-import { Gamemode } from '../gamemodes/gamemodes';
+import { Endingmode, Gamemode } from '../enums/enums';
 
 interface GameStart {
     roomId: string;
@@ -19,8 +18,8 @@ export interface Game {
     dartsLeft: number;
     running: boolean;
     finishOrder: Player[];
-    endingmode: number,
-    gamemode: number
+    endingmode: Endingmode,
+    gamemode: Gamemode
 }
 
 export interface DartThrow {
