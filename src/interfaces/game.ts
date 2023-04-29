@@ -13,6 +13,7 @@ interface GameStart {
 export interface Game {
     roomId: string;
     players: Player[];
+    pointsToReach: number;
     currentPlayer: Player;
     nextPlayer: Player;
     dartsLeft: number;
@@ -57,6 +58,7 @@ export function startGame(socket: Socket, json: string): void {
     const game: Game = {
         roomId: gameStart.roomId,
         players: players,
+        pointsToReach: gameStart.points,
         currentPlayer: players[0],
         nextPlayer: players[1] ? players[1] : players[0],
         dartsLeft: 3,
