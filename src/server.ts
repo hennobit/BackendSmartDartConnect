@@ -1,17 +1,17 @@
 import { Server, Socket } from 'socket.io';
-import express, { Request, Response } from 'express';
 import { startGame, dartThrown, nextPlayerEvent } from './interfaces/game';
 import { joinRoom, leaveRoom } from './interfaces/player';
+import app from './database';
 
-import { createServer } from 'https';
-import * as fs from 'fs';
+import { createServer } from 'http';
+/*import * as fs from 'fs';
 const privateKey = fs.readFileSync("/etc/ssl/private/dasistdart_private.key", "utf-8")
 const certificate = fs.readFileSync("/etc/ssl/certs/dasistdart_certificate.crt" , "utf-8")
-const credentials = {key: privateKey, cert: certificate}
+const credentials = {key: privateKey, cert: certificate}*/
 
 const PORT: number = 8081;
-const app = express();
-const server = createServer(credentials, app);
+
+const server = createServer(app);
 const io = new Server(server, {
     cors: {
         origin: '*'
@@ -19,14 +19,6 @@ const io = new Server(server, {
     allowEIO3: true,
     pingTimeout: 2000,
     pingInterval: 1000
-});
-
-app.get('/throw', (req: Request, res: Response) => {
-    res.send('' + Math.floor(Math.random() * 61));
-});
-
-app.get('/log', (req: Request, res: Response) => {
-    res.sendFile('/server_log.txt');
 });
 
 io.on('connection', (socket: Socket) => {
