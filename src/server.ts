@@ -3,15 +3,15 @@ import express, { Request, Response } from 'express';
 import { startGame, dartThrown, nextPlayerEvent } from './interfaces/game';
 import { joinRoom, leaveRoom } from './interfaces/player';
 
-import { createServer } from 'https';
+import { createServer } from 'http';
 import * as fs from 'fs';
-const privateKey = fs.readFileSync("/etc/ssl/private/dasistdart_private.key", "utf-8")
+/*const privateKey = fs.readFileSync("/etc/ssl/private/dasistdart_private.key", "utf-8")
 const certificate = fs.readFileSync("/etc/ssl/certs/dasistdart_certificate.crt" , "utf-8")
-const credentials = {key: privateKey, cert: certificate}
+const credentials = {key: privateKey, cert: certificate}*/
 
 const PORT: number = 8081;
 const app = express();
-const server = createServer(credentials, app);
+const server = createServer(app);
 const io = new Server(server, {
     cors: {
         origin: '*'
