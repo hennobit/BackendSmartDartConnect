@@ -4,13 +4,13 @@ import { joinRoom, leaveRoom } from './interfaces/player';
 import app from './database';
 
 import { createServer } from 'http';
-/*import * as fs from 'fs';
+import * as fs from 'fs';
 const privateKey = fs.readFileSync("/etc/ssl/private/dasistdart_private.key", "utf-8")
 const certificate = fs.readFileSync("/etc/ssl/certs/dasistdart_certificate.crt" , "utf-8")
-const credentials = {key: privateKey, cert: certificate}*/
+const credentials = {key: privateKey, cert: certificate}
 
 const PORT: number = 8081;
-
+const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
