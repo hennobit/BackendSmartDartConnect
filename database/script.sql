@@ -1,8 +1,29 @@
--- INSERT für die Credentials-Tabelle
-INSERT INTO credentials (username, password) VALUES ('HeMaNi', '123456');
+-- Credentials-Tabelle
+CREATE TABLE IF NOT EXISTS credentials (
+    id INTEGER PRIMARY KEY,
+    username TEXT,
+    password TEXT,
+    email TEXT,
+    phoneNumber TEXT
+);
 
--- INSERT für die User-Tabelle
-INSERT INTO user (credentialsId, profilePictureUrl, name, status, isOnline) VALUES (1, 'https://picsum.photos/200', 'HeMaNi', 'Der 180 Pro', 1);
+-- Benutzerkonten-Tabelle
+CREATE TABLE IF NOT EXISTS user (
+    id INTEGER PRIMARY KEY,
+    credentialsId INTEGER,
+    profilePictureUrl TEXT,
+    name TEXT,
+    status TEXT,
+    isOnline INTEGER,
+    FOREIGN KEY (credentialsId) REFERENCES credentials(id)
+);
 
--- INSERT für die Achievement-Tabelle
-INSERT INTO achievement (userId, name, imageUrl, description) VALUES (1, 'Erster!', 'https://picsum.photos/200', 'Du bist der erste Account auf der offiziellen, lizensierten SmartDartTM-Datenbank! Spaß');
+-- Erfolge-Tabelle
+CREATE TABLE IF NOT EXISTS achievement (
+    id INTEGER PRIMARY KEY,
+    userId INTEGER,
+    name TEXT,
+    imageUrl TEXT,
+    description TEXT,
+    FOREIGN KEY (userId) REFERENCES user(id)
+);
