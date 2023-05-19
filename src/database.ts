@@ -42,11 +42,13 @@ app.post('/login', (req: Request, res: Response) => {
             res.json({ userId: id, friends: rows });
 
             rows.forEach(async (friend: Friend) => {
-                const friendUserId = friend.user1 !== id ? friend.user1 : friend.user2;
+                const friendUserId = friend.user1_id !== id ? friend.user1_id : friend.user2_id;
                 const friendSocketId = await getUserSocketId(friendUserId);
 
+                console.log(friend, friendUserId, friendSocketId)
                 if (friendSocketId) {
                     sendPlayerOnline(id, friendSocketId);
+                    console.log('an ', friendSocketId + ' gesendet');
                 }
             });
         });
@@ -57,6 +59,14 @@ app.post('/login', (req: Request, res: Response) => {
 
 export function insertSocketId(userId: number, socketId: string) {
     db.run('UPDATE user SET socketId = ? WHERE id = ?', [socketId, userId], (err) => {
+        if (err) {
+            console.error(err);
+        }
+    });
+}
+
+export function removeSocketId(socketId: string) {
+    db.run('UPDATE user SET socketId = NULL WHERE socketId = ?', [socketId], (err) => {
         if (err) {
             console.error(err);
         }

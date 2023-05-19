@@ -1,5 +1,5 @@
 export interface Friend {
-    user1: number;
-    user2: number;
+    user1_id: number;
+    user2_id: number;
     date: Date;
 }

@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { deleteRoomIfEmpty, globalPlayerMap, handlePlayerCount } from '../utils/sessionmanager';
 import { RANDOM_SOCKET } from '../server';
-import { insertSocketId } from '../database';
+import { insertSocketId, removeSocketId } from '../database';
 
 export interface Player {
     name: string;
@@ -42,12 +42,18 @@ export function leaveRoom(socket: Socket): void {
     const playerArrayInRoom: Player[] | undefined = globalPlayerMap.get(room);
     console.log(`${socket.id} is disconnecting`, `${playerArrayInRoom ? 'and leaves Room: ' + room : '...'}`);
     if (playerArrayInRoom === undefined) {
-        // wenn wir hier drinne landen, ist die socket in keinem raum drinne und wir können returnen
+        // TODO, das hier ist falsch.
+        // diese function wird aufgerufen, sobald die socket sich vom server trennt, da man aber auch räume
+        // verlassen können sollte, ohne sich vom server zu trennen muss hier die logik nochmal
+        // überarbeitet werden
+        // **wenn wir hier drinne landen, ist die socket in keinem raum drinne und wir können returnen**
+        removeSocketId(socket.id)
         return;
     }
     const actualPlayersInRoom = playerArrayInRoom.filter((p) => p.socket !== socket.id);
     socket.to(room).emit('playercount-change', JSON.stringify(actualPlayersInRoom));
 
+    removeSocketId(socket.id)
     globalPlayerMap.set(room, actualPlayersInRoom);
     deleteRoomIfEmpty(room);
 }

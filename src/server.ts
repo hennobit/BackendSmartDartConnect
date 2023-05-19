@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { startGame, dartThrown, nextPlayerEvent } from './interfaces/game';
-import { joinRoom, leaveRoom, sendPlayerOnline } from './interfaces/player';
+import { joinRoom, leaveRoom } from './interfaces/player';
 import app from './database';
 
 // DEV TO LIVE SCHALTER    wenn dev mode gewollt ist, einfach ein weiteres '/' in der unteren zeile schreiben. "//*DEV"
