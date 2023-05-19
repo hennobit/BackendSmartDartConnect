@@ -4,6 +4,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { User } from './interfaces/db/user';
 import { Friend } from './interfaces/db/friend';
+import { sendPlayerOnline } from './interfaces/player';
 
 const app = express();
 app.use(bodyParser.json());
@@ -17,7 +18,8 @@ const db = new sqlite3.Database('./database/smartdart.db', (err) => {
 
 app.post('/login', (req: Request, res: Response) => {
     console.log(req.body);
-    const { username } = req.body;
+    const { username, socketId } = req.body; // Socket-ID aus dem Request-Body abrufen
+
     db.get('SELECT id FROM User WHERE name = ?', [username], (err, row: User) => {
         if (err) {
             console.error(err);
@@ -37,11 +39,29 @@ app.post('/login', (req: Request, res: Response) => {
                 res.status(500).json({ error: 'Internal Server Error' });
                 return;
             }
-
             res.json({ userId: id, friends: rows });
+
+            rows.forEach(async (friend: Friend) => {
+                const friendUserId = friend.user1 !== id ? friend.user1 : friend.user2;
+                const friendSocketId = await getUserSocketId(friendUserId);
+
+                if (friendSocketId) {
+                    sendPlayerOnline(id, friendSocketId);
+                }
+            });
         });
+
+        insertSocketId(id, socketId);
     });
 });
+
+export function insertSocketId(userId: number, socketId: string) {
+    db.run('UPDATE user SET socketId = ? WHERE id = ?', [socketId, userId], (err) => {
+        if (err) {
+            console.error(err);
+        }
+    });
+}
 
 // Das ist die Route für die ProfileView eines Nutzers, deswegen werden hier drei Datensätze returned, wegen der Erfolge
 app.post('/user/profile', (req: Request, res: Response) => {
@@ -70,7 +90,7 @@ app.post('/user/profile', (req: Request, res: Response) => {
 
 app.post('/user', (req, res) => {
     const { userId } = req.body;
-    console.log('POST /user', userId)
+    console.log('POST /user', userId);
 
     db.get(`SELECT * FROM user u WHERE u.id = ?`, [userId], (err, row) => {
         if (err) {
@@ -85,5 +105,22 @@ app.post('/user', (req, res) => {
         res.json(row);
     });
 });
+
+async function getUserSocketId(userId: number): Promise<string | null> {
+    return new Promise((resolve, reject) => {
+        db.get('SELECT socketId FROM user WHERE id = ?', [userId], (err, row: User) => {
+            if (err) {
+                console.error(err);
+                reject(err);
+                return;
+            }
+            if (!row) {
+                resolve(null);
+                return;
+            }
+            resolve(row.socketId);
+        });
+    });
+}
 
 export default app;
