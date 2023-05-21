@@ -45,7 +45,7 @@ app.post('/login', (req: Request, res: Response) => {
                 const friendUserId = friend.user1_id !== id ? friend.user1_id : friend.user2_id;
                 const friendSocketId = await getUserSocketId(friendUserId);
 
-                console.log(friend, friendUserId, friendSocketId)
+                console.log(friend, friendUserId, friendSocketId);
                 if (friendSocketId) {
                     sendPlayerOnline(id, friendSocketId);
                     console.log('an ', friendSocketId + ' gesendet');
@@ -130,6 +130,18 @@ async function getUserSocketId(userId: number): Promise<string | null> {
             }
             resolve(row.socketId);
         });
+    });
+}
+
+export function updateThrowsStatistics(userId: number, multiplicator: number, points: number): void {
+    const columnName: string = multiplicator + 'x' + points;
+    const sql = `UPDATE throws SET "${columnName}" = "${columnName}" + 1 WHERE user_id = ${userId}`;
+    db.run(sql, (error) => {
+        if (error) {
+            console.error('Fehler beim Throws Updaten:', error.message);
+        } else {
+            console.log('Throws upgedatet yeah.');
+        }
     });
 }
 

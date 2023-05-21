@@ -1,1 +1,1 @@
-SELECT * from user
+SELECT * FROM throws
