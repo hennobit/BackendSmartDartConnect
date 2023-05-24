@@ -1,1 +1,1 @@
-SELECT * from friend
+SELECT * FROM throws

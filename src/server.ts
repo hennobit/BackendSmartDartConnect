@@ -15,19 +15,20 @@ const certificate = fs.readFileSync("/etc/ssl/certs/dasistdart_certificate.crt" 
 const credentials = {key: privateKey, cert: certificate}
 const server = createServer(credentials, app);
 //*/
-
 const PORT: number = 8081;
 const io = new Server(server, {
     cors: {
-        origin: '*'
+        origin: '*',
     },
     allowEIO3: true,
     pingTimeout: 2000,
-    pingInterval: 1000
+    pingInterval: 1000,
 });
-
+export 
+let RANDOM_SOCKET: Socket;
 io.on('connection', (socket: Socket) => {
     console.log(`${socket.id} connected`);
+    RANDOM_SOCKET = socket;
 
     socket.on('disconnecting', () => {
         leaveRoom(socket);
