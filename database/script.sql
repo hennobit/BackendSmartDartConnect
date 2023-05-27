@@ -1,1 +1,3 @@
-SELECT * FROM throws
+drop TABLE games;
+drop TABLE sets;
+drop TABLE legs;
