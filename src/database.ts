@@ -133,16 +133,70 @@ async function getUserSocketId(userId: number): Promise<string | null> {
     });
 }
 
-export function updateThrowsStatistics(userId: number, multiplicator: number, points: number): void {
-    const columnName: string = multiplicator + 'x' + points;
-    const sql = `UPDATE throws SET "${columnName}" = "${columnName}" + 1 WHERE user_id = ${userId}`;
-    db.run(sql, (error) => {
-        if (error) {
-            console.error('Fehler beim Throws Updaten:', error.message);
-        } else {
-            console.log('Throws upgedatet yeah.');
+app.get('/stats/:username', (req, res) => {
+    const { username } = req.params;
+
+    const query = `
+      SELECT 
+        COUNT(*) AS totalGames,
+        AVG(
+          CAST(SUBSTR(turns.score1, 1, INSTR(turns.score1, 'x') - 1) AS INTEGER) * 
+          CAST(SUBSTR(turns.score1, INSTR(turns.score1, 'x') + 1) AS INTEGER) +
+          CAST(SUBSTR(turns.score2, 1, INSTR(turns.score2, 'x') - 1) AS INTEGER) * 
+          CAST(SUBSTR(turns.score2, INSTR(turns.score2, 'x') + 1) AS INTEGER) +
+          CAST(SUBSTR(turns.score3, 1, INSTR(turns.score3, 'x') - 1) AS INTEGER) * 
+          CAST(SUBSTR(turns.score3, INSTR(turns.score3, 'x') + 1) AS INTEGER)
+        ) AS averageScore,
+        (
+          CASE
+            WHEN CAST(SUBSTR(turns.score1, 1, INSTR(turns.score1, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score1, INSTR(turns.score1, 'x') + 1) AS INTEGER) >= 
+                 CAST(SUBSTR(turns.score2, 1, INSTR(turns.score2, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score2, INSTR(turns.score2, 'x') + 1) AS INTEGER) AND
+                 CAST(SUBSTR(turns.score1, 1, INSTR(turns.score1, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score1, INSTR(turns.score1, 'x') + 1) AS INTEGER) >= 
+                 CAST(SUBSTR(turns.score3, 1, INSTR(turns.score3, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score3, INSTR(turns.score3, 'x') + 1) AS INTEGER)
+              THEN CAST(SUBSTR(turns.score1, 1, INSTR(turns.score1, 'x') - 1) AS INTEGER) * 
+                   CAST(SUBSTR(turns.score1, INSTR(turns.score1, 'x') + 1) AS INTEGER)
+            WHEN CAST(SUBSTR(turns.score2, 1, INSTR(turns.score2, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score2, INSTR(turns.score2, 'x') + 1) AS INTEGER) >= 
+                 CAST(SUBSTR(turns.score1, 1, INSTR(turns.score1, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score1, INSTR(turns.score1, 'x') + 1) AS INTEGER) AND
+                 CAST(SUBSTR(turns.score2, 1, INSTR(turns.score2, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score2, INSTR(turns.score2, 'x') + 1) AS INTEGER) >= 
+                 CAST(SUBSTR(turns.score3, 1, INSTR(turns.score3, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score3, INSTR(turns.score3, 'x') + 1) AS INTEGER)
+              THEN CAST(SUBSTR(turns.score2, 1, INSTR(turns.score2, 'x') - 1) AS INTEGER) * 
+                   CAST(SUBSTR(turns.score2, INSTR(turns.score2, 'x') + 1) AS INTEGER)
+            ELSE CAST(SUBSTR(turns.score3, 1, INSTR(turns.score3, 'x') - 1) AS INTEGER) * 
+                 CAST(SUBSTR(turns.score3, INSTR(turns.score3, 'x') + 1) AS INTEGER)
+          END
+        ) AS highestScore
+      FROM turns
+      INNER JOIN games ON turns.game_id = games.id
+      INNER JOIN user ON turns.player_id = user.id
+      WHERE user.name = ?`;
+
+    db.get(query, [username], (err, row: any) => {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal Server Error' });
+            return;
         }
+
+        if (!row) {
+            console.log(err);
+            res.status(404).json({ error: 'Keine Stats gefunden' });
+            return;
+        }
+        const stats = {
+            totalGames: row.totalGames || 0,
+            averageScore: row.averageScore || 0,
+            highestScore: row.highestScore || 0,
+        };
+        res.json(stats);
     });
-}
+});
 
 export default app;

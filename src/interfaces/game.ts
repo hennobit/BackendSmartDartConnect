@@ -2,7 +2,6 @@ import { Socket } from 'socket.io';
 import { Player } from './player';
 import { globalGameMap, globalPlayerMap, handleGameRooms } from '../utils/sessionmanager';
 import { Endingmode, Gamemode } from '../enums/enums';
-import { updateThrowsStatistics } from '../database';
 
 interface GameStart {
     roomId: string;
@@ -84,8 +83,6 @@ export function dartThrown(socket: Socket, json: string): void {
         return;
     }
     console.log('Dart has been thrown');
-    updateThrowsStatistics(dartThrow.userId, dartThrow.multiplicator, dartThrow.points);
-
     socket.to(dartThrow.roomId).emit('dart-throw', dartThrow);
     return;
 }
